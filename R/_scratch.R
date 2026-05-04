@@ -19,7 +19,11 @@ census <- census %>% mutate(census_id = row_number())
 pepfar_names <- pepfar %>% select(name, pepfar_id)
 census_names <- census %>% select(AREA_NAME, census_id)
 
+# apply buffer if needed
+pepfar <- st_buffer(st_make_valid(pepfar), dist = 400)
+
 # Step 1 ------------------------------------------------------------------
+# PROCESS CONTAINED PAIRS -------------------------------------------------
 
 contained_pairs <- st_covered_by(census, pepfar, sparse = TRUE)
 
@@ -38,10 +42,10 @@ contained_df <-
 
 contained_census_ids <- unique(contained_df$census_id)
 
-# Step 2 ------------------------------------------------------------------
-
-#pepfar <- pepfar
+# only census gets changed
 census <- census %>% filter(!census_id %in% contained_census_ids)
+
+# Step 2 ------------------------------------------------------------------
 
 compute_jacard <- function(poly1, poly2) {
   inter <- st_intersection(poly1, poly2)
@@ -187,7 +191,6 @@ final_crosswalk <- bind_rows(one_to_one_flat, many_to_one) %>%
           c(x, y)
         }
       }
-      #~ if (!is.null(.y)) c(.x, .y) else .x
     ),
     pcts_of_pepfar = map2(
       pcts_of_pepfar_contributing,
@@ -199,7 +202,6 @@ final_crosswalk <- bind_rows(one_to_one_flat, many_to_one) %>%
           c(x, y)
         }
       }
-      #~ if (!is.null(.y)) c(.x, .y) else .x
     ),
     n_census_polys = map_int(census_ids_contributing, length),
     match_type = case_when(
@@ -218,4 +220,4 @@ final_crosswalk <- left_join(final_crosswalk, st_drop_geometry(pepfar_names), by
   rename(pepfar_name = name,
          census_name = AREA_NAME) %>% arrange(pepfar_id)
 
-write.csv(final_crosswalk, "outputs/crosswalk_files/mwi_adm2_version2.csv", row.names = FALSE)
+write.csv(final_crosswalk, "outputs/crosswalk_files/mwi_adm2_version2_buffered.csv", row.names = FALSE)
