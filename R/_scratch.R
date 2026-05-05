@@ -5,8 +5,8 @@ library(tidyverse)
 
 # Load shapefiles
 load("../pepfar-census_poly-match/outputs/objects/shp_lsts.rda")
-pepfar <- cou_shp_lst$malawi$adm3 %>% st_make_valid()
-census <- census_shp_lst$malawi$adm2 %>% st_make_valid()
+pepfar <- rou_shp_lst$`sierra leone`$adm2 %>% st_make_valid()
+census <- census_shp_lst$`sierra leone`$adm2 %>% st_make_valid()
 
 # ensure same CRS
 census <- st_transform(census, st_crs(pepfar))
@@ -20,7 +20,7 @@ pepfar_names <- pepfar %>% select(name, pepfar_id)
 census_names <- census %>% select(AREA_NAME, census_id)
 
 # apply buffer if needed
-pepfar <- st_buffer(st_make_valid(pepfar), dist = 400)
+#pepfar <- st_buffer(st_make_valid(pepfar), dist = 400)
 
 # Step 1 ------------------------------------------------------------------
 # PROCESS CONTAINED PAIRS -------------------------------------------------
@@ -38,7 +38,8 @@ contained_df <-
          pepfar_area = as.numeric(st_area(pepfar[pepfar$pepfar_id == pepfar_id, ])),
          pct_of_pepfar = census_area / pepfar_area) %>%
   ungroup() %>%
-  mutate(is_contained = TRUE)
+  mutate(is_contained = TRUE) %>%
+  filter(pct_of_pepfar < 0.5)
 
 contained_census_ids <- unique(contained_df$census_id)
 

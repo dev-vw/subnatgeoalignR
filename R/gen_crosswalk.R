@@ -33,7 +33,11 @@ process_data <- function(pepfar, census) {
   census_names <- census %>% select(AREA_NAME, census_id)
 
   # apply buffer if needed
-  pepfar <- st_buffer(st_make_valid(pepfar), dist = BUFFER_DIST_IN_METERS)
+  if (BUFFER_DIST_IN_METERS == 0) {
+    pepfar <- st_make_valid(pepfar)
+  } else {
+    pepfar <- st_buffer(st_make_valid(pepfar), dist = BUFFER_DIST_IN_METERS)
+  }
 
   return(list(pepfar = pepfar, census = census,
               pepfar_names = pepfar_names, census_names = census_names))
@@ -53,7 +57,8 @@ process_contained_pairs <- function(pepfar, census) {
            pepfar_area = as.numeric(st_area(pepfar[pepfar$pepfar_id == pepfar_id, ])),
            pct_of_pepfar = census_area / pepfar_area) %>%
     ungroup() %>%
-    mutate(is_contained = TRUE)
+    mutate(is_contained = TRUE) %>%
+    filter(pct_of_pepfar < 0.5)
 
   contained_census_ids <- unique(contained_df$census_id)
 
