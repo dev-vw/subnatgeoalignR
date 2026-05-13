@@ -4,9 +4,9 @@ library(tidyverse)
 # PREP --------------------------------------------------------------------
 
 # Load shapefiles
-load("../pepfar-census_poly-match/outputs/objects/shp_lsts.rda")
-pepfar <- rou_shp_lst$`sierra leone`$adm2 %>% st_make_valid()
-census <- census_shp_lst$`sierra leone`$adm2 %>% st_make_valid()
+load("outputs/objects/smol_shp_lst.rda")
+pepfar <- smol_pepfar$`sierra leone`$adm2 %>% st_make_valid()
+census <- smol_census$`sierra leone`$adm2 %>% st_make_valid()
 
 # ensure same CRS
 census <- st_transform(census, st_crs(pepfar))
