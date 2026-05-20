@@ -332,10 +332,10 @@ process_crosswalk <- function(one_to_one, many_to_one,
                   crosswalk_id)
 
   final_crosswalk <- dplyr::bind_rows(one_to_one_flat, many_to_one) %>%
-    dplyr::left_join(contained_summary %>% dplyr::select(pepfar_id,
-                                                         census_ids_contained,
-                                                         pcts_of_pepfar_contained),
-                     by = "pepfar_id") %>%
+    dplyr::left_join(contained_summary %>%
+                       dplyr::select(pepfar_id,
+                                     census_ids_contained,
+                                     pcts_of_pepfar_contained), by = "pepfar_id") %>%
     dplyr::mutate(
       census_ids_contributing = purrr::map2(
         census_ids_contributing,
