@@ -1,0 +1,2 @@
+renv.lock merge=ours
+renv/settings.json merge=ours
