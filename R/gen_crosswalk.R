@@ -35,44 +35,6 @@ gen_crosswalk <- function(pepfar, census) {
   return(final_crosswalk)
 }
 
-#' Initial sf data processing for crosswalk generation
-#'
-#' @description (INTERNAL) Processes two sets of mutually comparable sf objects
-#' for crosswalk comparison. This is the first step of the crosswalking heuristic.
-#'
-#' @param pepfar
-#' @param census
-#'
-#' @import dplyr
-#' @import sf
-#'
-#' @returns a list of dfs
-#'
-#' @examples
-process_data <- function(pepfar, census) {
-  # ensure same CRS of two sets of shapefiles
-  census <- sf::st_transform(census, st_crs(pepfar))
-
-  # add row IDs if not already present
-  pepfar <- pepfar %>% dplyr::mutate(pepfar_id = row_number())
-  census <- census %>% dplyr::mutate(census_id = row_number())
-
-  # polygon names needed for merging names at the final final_crosswalk formation
-  pepfar_names <- pepfar %>% dplyr::select(name, pepfar_id)
-  census_names <- census %>% dplyr::select(AREA_NAME, census_id)
-
-  # apply buffer if needed
-  if (get_option("buffer_dist") == 0) {
-    pepfar <- sf::st_make_valid(pepfar)
-  } else {
-    pepfar <- sf::st_buffer(sf::st_make_valid(pepfar),
-                            dist = get_option("buffer_dist"))
-  }
-
-  return(list(pepfar = pepfar, census = census,
-              pepfar_names = pepfar_names, census_names = census_names))
-}
-
 #' Find contained pairs between two sets of sf polygons
 #'
 #' @description Looks for the census polygons that are contained by pepfar polygons

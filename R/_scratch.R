@@ -5,8 +5,8 @@ library(tidyverse)
 
 # Load shapefiles
 load("outputs/objects/smol_shp_lst.rda")
-pepfar <- smol_pepfar$`sierra leone`$adm2 %>% st_make_valid()
-census <- smol_census$`sierra leone`$adm2 %>% st_make_valid()
+pepfar <- smol_pepfar$botswana$adm2 %>% st_make_valid()
+census <- smol_census$botswana$adm2 %>% st_make_valid()
 
 # ensure same CRS
 census <- st_transform(census, st_crs(pepfar))
@@ -222,3 +222,7 @@ final_crosswalk <- left_join(final_crosswalk, st_drop_geometry(pepfar_names), by
          census_name = AREA_NAME) %>% arrange(pepfar_id)
 
 write.csv(final_crosswalk, "outputs/crosswalk_files/mwi_adm2_version2_buffered.csv", row.names = FALSE)
+
+# All slivers and intersects ----------------------------------------------
+
+
